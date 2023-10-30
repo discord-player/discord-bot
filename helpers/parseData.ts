@@ -1,11 +1,12 @@
 import type { Documentation } from "typedoc-nextra"
 import baseUrl from "../constants/baseUrl";
+import { writeFileSync } from "fs";
 
 export interface Data {
     type: "classes"|"functions"|"types"|"properties";
     name: string;
     url: string;
-    description: string;
+    description?: string;
 }
 
 const map = new Map<
@@ -45,7 +46,7 @@ export function parseData (docs: Documentation) {
                     arr.push(...properties.map((m) => {
                         return {
                             type: "properties",
-                            name: `${e.data.name}#${m.name}`,
+                            name: `${e.data.name}.${m.name}`,
                             url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=p-${m.name}`,
                             description: m.description
                          } as Data
@@ -55,7 +56,8 @@ export function parseData (docs: Documentation) {
                         type: "classes",
                         name: e.data.name,
                         url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}`,
-                        description: e.data.description
+                        //@ts-ignore
+                        description: e.data.description ?? e.data.constructor?.description
                     } as Data
                 })
 

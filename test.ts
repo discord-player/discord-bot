@@ -1,7 +1,9 @@
-import { parseData } from "./helpers/parseData"
-import requestDPDocs from "./helpers/requestDPDocs";
+import Fuse from "fuse.js"
 
-(async () => {
-    const docs = await requestDPDocs()
-    console.log(Object.fromEntries(parseData(docs)))
-})()
+const names = ["Player", "GuildPlayerNode", "FFMPEG"]
+
+const fuse = new Fuse(names, {
+    includeScore: true
+})
+
+console.log(fuse.search("Play"))

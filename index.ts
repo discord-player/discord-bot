@@ -2,14 +2,23 @@ import { Client, GatewayIntentBits } from "discord.js";
 import type { Documentation } from "typedoc-nextra"
 import chalk from "chalk";
 import "dotenv/config"
-import * as fs from "node:fs"
-import { Data, parseData } from "./helpers/parseData";
+import path = require("node:path");
+import { CommandKit } from 'commandkit';
 
 // Local Imports
-import requestDPDocs from "./helpers/requestDPDocs";
+import { Data } from "./helpers/parseData";
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds]
+})
+
+new CommandKit({
+    client,
+    commandsPath: path.join(__dirname, 'commands'),
+    eventsPath: path.join(__dirname, 'events'),
+    devGuildIds: ["1128736663573643315"],
+    devUserIds: ['916316955772862475', "691111067807514685"],
+    bulkRegister: true
 })
 
 client.debug = (message: string) => {
@@ -18,34 +27,6 @@ client.debug = (message: string) => {
 
     console.log(debugMsg)
 }
-
-client.on("ready", async () => {
-    client.debug(`Client connected as ${client.user?.username}`)
-
-    client.debug(`Caching documentation from GitHub`)
-
-    try {
-        const docsData = await requestDPDocs()
-
-        client.docsRawData = docsData
-
-        client.isDocsLocal = false
-    } catch (error) {
-        client.debug("Failed to fetch documentation data from GitHub. Proceeding to use local data which maybe outdated")
-
-        client.docsRawData = JSON.parse(fs.readFileSync("docs.json").toString("utf-8")) as Documentation
-
-        client.isDocsLocal = true
-    }
-
-    client.debug(`Documentation cached. Parsing the data ...`)
-
-    client.docsParsedData = parseData(client.docsRawData)
-
-    client.isDocsReady = true
-    
-    client.debug(`Data parsed!`)
-})
 
 client.login(process.env.TOKEN)
 

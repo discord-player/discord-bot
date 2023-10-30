@@ -13,7 +13,7 @@ const client = new Client({
 })
 
 client.debug = (message: string) => {
-    const [right, left] = [chalk.blue("["), chalk.blue("]")]
+    const [left, right] = [chalk.blue("["), chalk.blue("]")]
     const debugMsg = `${left} ${chalk.yellow("DEBUG")} ${right} ${chalk.gray(message)}`
 
     console.log(debugMsg)
@@ -43,6 +43,8 @@ client.on("ready", async () => {
     client.docsParsedData = parseData(client.docsRawData)
 
     client.isDocsReady = true
+    
+    client.debug(`Data parsed!`)
 })
 
 client.login(process.env.TOKEN)

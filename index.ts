@@ -1,9 +1,10 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, Events, GatewayIntentBits } from "discord.js";
 import type { Documentation } from "typedoc-nextra"
 import chalk from "chalk";
 import "dotenv/config"
 import path = require("node:path");
 import { CommandKit } from 'commandkit';
+import express, { Express } from "express"
 
 // Local Imports
 import { Data } from "./helpers/parseData";
@@ -11,6 +12,8 @@ import { Data } from "./helpers/parseData";
 const client = new Client({
     intents: [GatewayIntentBits.Guilds]
 })
+
+client.webapp = express()
 
 new CommandKit({
     client,
@@ -28,6 +31,8 @@ client.debug = (message: string) => {
     console.log(debugMsg)
 }
 
+process.on("uncaughtException", (err) => client.debug(`ERROR ${err.message}`))
+
 client.login(process.env.TOKEN)
 
 declare module "discord.js" {
@@ -39,6 +44,17 @@ declare module "discord.js" {
         docsParsedData: Map<
             "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader",
             Array<Data>
-        >
+        >,
+        webapp: Express
     }
 }
+
+// for express
+
+client.webapp.get("/", (req, res) => {
+    res.send("Keep Alive")
+})
+
+const port = process.env.PORT || 3000
+
+client.webapp.listen(port, () => client.debug(`Keep Alive server started on ${port}`))

@@ -3,8 +3,8 @@ import { SlashCommandBuilder } from "discord.js"
 import { basicReply } from '../../helpers/basicReply';
 
 export const data = new SlashCommandBuilder()
-.setName("dp")
-.setDescription("Search the Discord Player documentation")
+.setName("extractor")
+.setDescription("Search the @discord-player/extractor documentation")
 .addStringOption(option => 
     option.setName(`query`)
     .setDescription(`The query to search for`)

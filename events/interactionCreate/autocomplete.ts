@@ -4,31 +4,29 @@ import { Data } from "../../helpers/parseData";
 import Fuse from "fuse.js";
 
 export default async function (interaction: Interaction, client: Client<true>, _handler: CommandKit) {
-    if(!interaction.isAutocomplete()) return
+    if (!interaction.isAutocomplete()) return
 
     const name = interaction.commandName
 
-    if(name === "dp") {
-        const query = interaction.options.getString("query")
-        
-        if(!query) return interaction.respond([])
+    const query = interaction.options.getString("query")
 
-        const data = client.docsParsedData.get("discord-player") as Data[]
+    if (!query) return interaction.respond([])
 
-        let stringOfNames = data.map(e => e.name)
+    const data = client.docsParsedData.get(name === "dp" ? "discord-player" : name as "extractor"|"equalizer"|"ffmpeg"|"opus"|"utils"|"downloader") as Data[]
 
-        if(!query.includes("#")) stringOfNames = stringOfNames.filter((e) => !e.includes("#"))
+    let stringOfNames = data.map(e => e.name)
 
-        const fuse = new Fuse(stringOfNames, {
-            includeScore: true
-        })
+    if (!query.includes("#")) stringOfNames = stringOfNames.filter((e) => !e.includes("#"))
 
-        const res = fuse.search(query).sort((a, b) => {
-            if(!a.score || !b.score) return 0
-            return a.score - b.score
-        })
+    const fuse = new Fuse(stringOfNames, {
+        includeScore: true
+    })
+
+    const res = fuse.search(query).sort((a, b) => {
+        if (!a.score || !b.score) return 0
+        return a.score - b.score
+    })
         .slice(0, 25)
 
-        interaction.respond(res.map(val => ({ name: val.item, value: val.item })))
-    }
+    interaction.respond(res.map(val => ({ name: val.item, value: val.item })))
 };

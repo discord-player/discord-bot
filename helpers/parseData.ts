@@ -1,6 +1,5 @@
 import type { Documentation } from "typedoc-nextra"
 import baseUrl from "../constants/baseUrl";
-import { writeFileSync } from "fs";
 
 export interface Data {
     type: "classes"|"functions"|"types"|"properties";
@@ -46,7 +45,7 @@ export function parseData (docs: Documentation) {
                     arr.push(...properties.map((m) => {
                         return {
                             type: "properties",
-                            name: `${e.data.name}.${m.name}`,
+                            name: `${e.data.name}#${m.name}`,
                             url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=p-${m.name}`,
                             description: m.description
                          } as Data

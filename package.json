@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "chalk": "^5.3.0",
+    "chalk": "4.1.2",
     "commandkit": "^0.1.6",
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
@@ -17,6 +17,6 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "bun index.ts"
+    "start": "node ./dist/index.js"
   }
 }

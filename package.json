@@ -19,6 +19,6 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && ls",
-    "start": "bun index.ts"
+    "start": "node dist/index.js"
   }
 }

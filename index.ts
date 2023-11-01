@@ -1,14 +1,13 @@
 import { Client } from "./helpers/client";
 import express from "express";
 import { InteractionResponseType } from "discord-api-types/v10"
-import { default as axios } from "axios"
 import Fuse from "fuse.js"
 import { Data } from "./helpers/client";
 import { basicReply } from "./helpers/basicReply";
 
 const client = new Client(express())
 
-const APP_ID = "1168430754825510912"
+process.on("uncaughtException", (e) => client.debug("ERROR: " + e.message))
 
 client.on("ready", (port) => {
     client.debug(`Ready on port ${port}`)
@@ -28,6 +27,15 @@ client.on("interactionAutoComplete", async (ctx, res) => {
     })
 
     const data = client.docsParsedData.get(name === "dp" ? "discord-player" : name as "extractor"|"equalizer"|"ffmpeg"|"opus"|"utils"|"downloader") as Data[]
+
+    if(!data) {
+        return res.json({
+            type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+            data: {
+                choices: []
+            }
+        })
+    }
 
     let stringOfNames = data.map(e => e.name)
 

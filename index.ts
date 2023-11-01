@@ -1,60 +1,62 @@
-import { Client, Events, GatewayIntentBits } from "discord.js";
-import type { Documentation } from "typedoc-nextra"
-import chalk from "chalk";
-import "dotenv/config"
-import path = require("node:path");
-import { CommandKit } from 'commandkit';
-import express, { Express } from "express"
+import { Client } from "./helpers/client";
+import express from "express";
+import { InteractionResponseType } from "discord-api-types/v10"
+import { default as axios } from "axios"
+import Fuse from "fuse.js"
+import { Data } from "./helpers/client";
+import { basicReply } from "./helpers/basicReply";
 
-// Local Imports
-import { Data } from "./helpers/parseData";
+const client = new Client(express())
 
-const client = new Client({
-    intents: [GatewayIntentBits.Guilds]
+const APP_ID = "1168430754825510912"
+
+client.on("ready", (port) => {
+    client.debug(`Ready on port ${port}`)
 })
 
-client.webapp = express()
+client.on("interactionAutoComplete", async (ctx, res) => {
+    const name = ctx.data.name
 
-new CommandKit({
-    client,
-    commandsPath: path.join(__dirname, 'commands'),
-    eventsPath: path.join(__dirname, 'events'),
-    devGuildIds: ["1128736663573643315"],
-    devUserIds: ['916316955772862475', "691111067807514685"],
-    bulkRegister: true
+    // @ts-ignore
+    const query = ctx.data.options[0].value as string
+
+    if(!query) return res.json({
+        type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+        data: {
+            choices: []
+        }
+    })
+
+    const data = client.docsParsedData.get(name === "dp" ? "discord-player" : name as "extractor"|"equalizer"|"ffmpeg"|"opus"|"utils"|"downloader") as Data[]
+
+    let stringOfNames = data.map(e => e.name)
+
+    if (!query.includes("#")) stringOfNames = stringOfNames.filter((e) => !e.includes("#"))
+    
+    const fuse = new Fuse(stringOfNames, {
+        includeScore: true
+    })
+
+    const response = fuse.search(query).sort((a, b) => {
+        if (!a.score || !b.score) return 0
+        return a.score - b.score
+    })
+        .slice(0, 25)
+
+    res.json({
+        type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+        data: {
+            choices: response.map(val => ({ name: val.item, value: val.item }))
+        }
+    })
 })
 
-client.debug = (message: string) => {
-    const [left, right] = [chalk.blue("["), chalk.blue("]")]
-    const debugMsg = `${left} ${chalk.yellow("DEBUG")} ${right} ${chalk.gray(message)}`
+client.on("interactionCommand", async (ctx, res) => {
+    res.send({
+        type: InteractionResponseType.DeferredChannelMessageWithSource
+    })
 
-    console.log(debugMsg)
-}
-
-process.on("uncaughtException", (err) => client.debug(`ERROR ${err.message}`))
-
-client.login(process.env.TOKEN)
-
-declare module "discord.js" {
-    interface Client {
-        docsRawData: Documentation,
-        debug: (message: string) => void,
-        isDocsReady: boolean,
-        isDocsLocal: boolean,
-        docsParsedData: Map<
-            "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader",
-            Array<Data>
-        >,
-        webapp: Express
-    }
-}
-
-// for express
-
-client.webapp.get("/", (req, res) => {
-    res.send("Keep Alive")
+    basicReply(ctx, client)
 })
 
-const port = process.env.PORT || 3000
-
-client.webapp.listen(port, () => client.debug(`Keep Alive server started on ${port}`))
+client.login(process.env.PUBLIC_KEY as string, process.env.TOKEN as string, process.env.PORT || 3000)

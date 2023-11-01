@@ -1,4 +1,4 @@
-import { Data } from "./parseData";
+import { Data } from "./client";
 
 export function getEmoji(type: Data['type']) {
     switch(type) {

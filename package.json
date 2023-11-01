@@ -18,5 +18,9 @@
   "devDependencies": {
     "@types/express": "^4.17.20",
     "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
   }
 }

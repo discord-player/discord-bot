@@ -22,7 +22,7 @@ export async function basicReply(interaction: APIApplicationCommandInteraction, 
     const autocomplete = interaction.data.options[0].value as string
 
     // @ts-ignore
-    const docs = client.docsParsedData.get(commandName) as Data[]
+    const docs = globalThis.docsParsedData.get(commandName) as Data[]
 
     const index = docs?.findIndex((val) => val.name === autocomplete)
 

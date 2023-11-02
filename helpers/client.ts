@@ -29,30 +29,27 @@ export interface TypedEvents {
 
 export class Client extends TypedEmitter<TypedEvents> {
     public router: Express
-    public docsRawData!: Documentation
-    public docsParsedData = new Map<
-        "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader",
-        Array<Data>
-    >()
     token!: string
 
     constructor(app: Express) {
         super()
         this.router = app;
         (async () => {
-            this.docsRawData = await requestDPDocs()
+            globalThis.docsRawData = await requestDPDocs()
             
-            const objectKeys = Object.keys(this.docsRawData.modules)
+            const objectKeys = Object.keys(globalThis.docsRawData.modules)
+
+            if(!globalThis.docsParsedData) globalThis.docsParsedData = new Map<"extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader", Data[]>()
 
             for(const key of objectKeys) {
                 const replacement = key.replace("@discord-player/", "") as "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader"
         
-                const dataArr = Object.keys(this.docsRawData.modules[key]).filter(e => e !== "name") as ("classes"|"functions"|"types")[]
+                const dataArr = Object.keys(globalThis.docsRawData.modules[key]).filter(e => e !== "name") as ("classes"|"functions"|"types")[]
         
                 const arr: Array<Data> = []
         
                 for(let d of dataArr) {
-                    const data = this.docsRawData.modules[key][d]
+                    const data = globalThis.docsRawData.modules[key][d]
         
                     if(d === "classes") {
                         const arrData = data.map((e) => {
@@ -113,7 +110,7 @@ export class Client extends TypedEmitter<TypedEvents> {
                         }))
                     }
         
-                    this.docsParsedData.set(replacement, arr)
+                    globalThis.docsParsedData.set(replacement, arr)
                 }
 
                 this.debug("Data cached")

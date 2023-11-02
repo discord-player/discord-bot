@@ -14,6 +14,8 @@ export async function followUp(content: string, ctx: APIApplicationCommandIntera
 export async function basicReply(interaction: APIApplicationCommandInteraction, client: Client) {
     let commandName = interaction.data.name
 
+    if(commandName === "reload") return
+
     if (commandName === "dp") commandName = "discord-player"
 
     // @ts-ignore
@@ -30,7 +32,7 @@ export async function basicReply(interaction: APIApplicationCommandInteraction, 
 
     if(!data) return followUp("Cannot find `" + autocomplete + "` in our docs", interaction)
 
-    let string = `\\${getEmoji(data.type)} **__[${data.name}](<${data.url}>)__**`
+    let string = `${getEmoji(data.type)} **__[${data.name}](<${data.url}>)__**`
 
     if(data.description) string += `\n${data.description}`
 

@@ -16,6 +16,8 @@ export async function basicReply(interaction: APIApplicationCommandInteraction, 
 
     if(commandName === "reload") return
 
+    await client.ensureCache()
+
     if (commandName === "dp") commandName = "discord-player"
 
     // @ts-ignore

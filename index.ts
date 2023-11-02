@@ -26,6 +26,8 @@ client.on("interactionAutoComplete", async (ctx, res) => {
         }
     })
 
+    await client.ensureCache()
+
     const data = globalThis.docsParsedData.get(name === "dp" ? "discord-player" : name as "extractor"|"equalizer"|"ffmpeg"|"opus"|"utils"|"downloader") as Data[]
 
     if(!data) {

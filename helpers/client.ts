@@ -34,88 +34,93 @@ export class Client extends TypedEmitter<TypedEvents> {
     constructor(app: Express) {
         super()
         this.router = app;
-        (async () => {
-            globalThis.docsRawData = await requestDPDocs()
+
+        this.ensureCache()
+    }
+
+    async ensureCache() {
+        if(globalThis.docsRawData && globalThis.docsParsedData) return
+
+        globalThis.docsRawData = await requestDPDocs()
             
-            const objectKeys = Object.keys(globalThis.docsRawData.modules)
+        const objectKeys = Object.keys(globalThis.docsRawData.modules)
 
-            if(!globalThis.docsParsedData) globalThis.docsParsedData = new Map<"extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader", Data[]>()
+        if(!globalThis.docsParsedData) globalThis.docsParsedData = new Map<"extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader", Data[]>()
 
-            for(const key of objectKeys) {
-                const replacement = key.replace("@discord-player/", "") as "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader"
-        
-                const dataArr = Object.keys(globalThis.docsRawData.modules[key]).filter(e => e !== "name") as ("classes"|"functions"|"types")[]
-        
-                const arr: Array<Data> = []
-        
-                for(let d of dataArr) {
-                    const data = globalThis.docsRawData.modules[key][d]
-        
-                    if(d === "classes") {
-                        const arrData = data.map((e) => {
-                            // @ts-ignore
-                            const methods = e.data.methods as Array<any>
-                            // @ts-ignore
-                            const properties = e.data.properties as Array<any>
-        
-                            arr.push(...methods.map((m) => {
-                                return {
-                                    type: "functions",
-                                    name: `${e.data.name}#${m.name}`,
-                                    url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=fm-${m.name}`,
-                                    description: m.description
-                                } as Data
-                            }))
-        
-                            arr.push(...properties.map((m) => {
-                                return {
-                                    type: "properties",
-                                    name: `${e.data.name}#${m.name}`,
-                                    url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=p-${m.name}`,
-                                    description: m.description
-                                 } as Data
-                            }))
-        
-                            return {
-                                type: "classes",
-                                name: e.data.name,
-                                url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}`,
-                                //@ts-ignore
-                                description: e.data.description ?? e.data.constructor?.description
-                            } as Data
-                        })
-        
-                        arr.push(...arrData)
-                    }
-        
-                    if(d === "functions") {
-                        arr.push(...data.map((e: any) => {
+        for(const key of objectKeys) {
+            const replacement = key.replace("@discord-player/", "") as "extractor"|"equalizer"|"discord-player"|"ffmpeg"|"opus"|"utils"|"downloader"
+    
+            const dataArr = Object.keys(globalThis.docsRawData.modules[key]).filter(e => e !== "name") as ("classes"|"functions"|"types")[]
+    
+            const arr: Array<Data> = []
+    
+            for(let d of dataArr) {
+                const data = globalThis.docsRawData.modules[key][d]
+    
+                if(d === "classes") {
+                    const arrData = data.map((e) => {
+                        // @ts-ignore
+                        const methods = e.data.methods as Array<any>
+                        // @ts-ignore
+                        const properties = e.data.properties as Array<any>
+    
+                        arr.push(...methods.map((m) => {
                             return {
                                 type: "functions",
-                                name: e.data.name,
-                                url: `${baseUrl}/${encodeURIComponent(key)}/function/${e.data.name}`,
-                                description: e.data.description
+                                name: `${e.data.name}#${m.name}`,
+                                url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=fm-${m.name}`,
+                                description: m.description
                             } as Data
                         }))
-                    }
-        
-                    if(d === "types") {
-                        arr.push(...data.map((e: any) => {
+    
+                        arr.push(...properties.map((m) => {
                             return {
-                                type: "types",
-                                name: e.data.name,
-                                url: `${baseUrl}/${encodeURIComponent(key)}/type/${e.data.name}`,
-                                description: e.data.description
-                            } as Data
+                                type: "properties",
+                                name: `${e.data.name}#${m.name}`,
+                                url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=p-${m.name}`,
+                                description: m.description
+                             } as Data
                         }))
-                    }
-        
-                    globalThis.docsParsedData.set(replacement, arr)
+    
+                        return {
+                            type: "classes",
+                            name: e.data.name,
+                            url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}`,
+                            //@ts-ignore
+                            description: e.data.description ?? e.data.constructor?.description
+                        } as Data
+                    })
+    
+                    arr.push(...arrData)
                 }
-
-                this.debug("Data cached")
+    
+                if(d === "functions") {
+                    arr.push(...data.map((e: any) => {
+                        return {
+                            type: "functions",
+                            name: e.data.name,
+                            url: `${baseUrl}/${encodeURIComponent(key)}/function/${e.data.name}`,
+                            description: e.data.description
+                        } as Data
+                    }))
+                }
+    
+                if(d === "types") {
+                    arr.push(...data.map((e: any) => {
+                        return {
+                            type: "types",
+                            name: e.data.name,
+                            url: `${baseUrl}/${encodeURIComponent(key)}/type/${e.data.name}`,
+                            description: e.data.description
+                        } as Data
+                    }))
+                }
+    
+                globalThis.docsParsedData.set(replacement, arr)
             }
-        })()
+
+            this.debug("Data cached")
+        }
     }
     
     debug(message: string) {

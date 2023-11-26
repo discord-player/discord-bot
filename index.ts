@@ -66,7 +66,7 @@ client.on("interactionCommand", async (ctx, res) => {
         type: InteractionResponseType.DeferredChannelMessageWithSource
     })
 
-    basicReply(ctx, client)
+    await basicReply(ctx, client)
 })
 
 client.login(process.env.PUBLIC_KEY as string, process.env.TOKEN as string, process.env.PORT || 3000)

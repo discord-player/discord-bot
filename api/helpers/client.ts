@@ -2,7 +2,6 @@ import type { Express, Response } from "express";
 import { TypedEmitter } from "tiny-typed-emitter"
 import chalk from "chalk"
 import { InteractionType, type APIInteraction, APIApplicationCommandInteraction, InteractionResponseType, APIApplicationCommandAutocompleteInteraction } from "discord-api-types/v10"
-import { Documentation } from "typedoc-nextra";
 import requestDPDocs from "./requestDocs";
 import { verifyKeyMiddleware } from "discord-interactions";
 import "dotenv/config"

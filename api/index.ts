@@ -5,7 +5,9 @@ import Fuse from "fuse.js"
 import { Data } from "./helpers/client";
 import { basicReply } from "./helpers/basicReply";
 
-const client = new Client(express())
+const app = express()
+
+const client = new Client(app)
 
 process.on("uncaughtException", (e) => client.debug("ERROR: " + e.message))
 
@@ -69,4 +71,8 @@ client.on("interactionCommand", async (ctx, res) => {
     await basicReply(ctx, client)
 })
 
+app.get("/", (_, res) => res.send("PONG!"))
+
 client.login(process.env.PUBLIC_KEY as string, process.env.TOKEN as string, process.env.PORT || 3000)
+
+module.exports = app

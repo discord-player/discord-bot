@@ -18,7 +18,7 @@
   "main": "./dist/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && ls",
+    "build": "tsc",
     "start": "node dist/index.js"
   }
 }

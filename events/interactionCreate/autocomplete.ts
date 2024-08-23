@@ -2,6 +2,7 @@ import type { Client, Interaction } from "discord.js"
 import type { CommandKit } from 'commandkit';
 import { Data } from "../../helpers/parseData";
 import Fuse from "fuse.js";
+import { getEmojiAutocompelte } from "../../helpers/getEmoji";
 
 export default async function (interaction: Interaction, client: Client<true>, _handler: CommandKit) {
     if (!interaction.isAutocomplete()) return
@@ -14,9 +15,11 @@ export default async function (interaction: Interaction, client: Client<true>, _
 
     const data = client.docsParsedData.get(name === "dp" ? "discord-player" : name as "extractor"|"equalizer"|"ffmpeg"|"opus"|"utils"|"downloader") as Data[]
 
-    let stringOfNames = data.map(e => e.name)
+    let stringOfNames = data.map(e => {
+        return `${getEmojiAutocompelte(e.type)} ${e.name}`
+    })
 
-    if (!query.includes("#")) stringOfNames = stringOfNames.filter((e) => !e.includes("#"))
+    if (!query.includes(".")) stringOfNames = stringOfNames.filter((e) => !e.includes("."))
 
     const fuse = new Fuse(stringOfNames, {
         includeScore: true

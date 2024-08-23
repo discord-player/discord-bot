@@ -36,7 +36,7 @@ export function parseData (docs: Documentation) {
                     arr.push(...methods.map((m) => {
                         return {
                             type: "functions",
-                            name: `${e.data.name}#${m.name}`,
+                            name: `${e.data.name}.${m.name}`,
                             url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=fm-${m.name}`,
                             description: m.description
                         } as Data
@@ -45,7 +45,7 @@ export function parseData (docs: Documentation) {
                     arr.push(...properties.map((m) => {
                         return {
                             type: "properties",
-                            name: `${e.data.name}#${m.name}`,
+                            name: `${e.data.name}.${m.name}`,
                             url: `${baseUrl}/${encodeURIComponent(key)}/class/${e.data.name}?scrollTo=p-${m.name}`,
                             description: m.description
                          } as Data

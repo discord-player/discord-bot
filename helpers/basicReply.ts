@@ -7,8 +7,13 @@ export async function basicReply(interaction: ChatInputCommandInteraction, clien
 
     if(commandName === "dp") commandName = "discord-player"
 
-    const autocomplete = interaction.options.getString(`query`)
-    
+    const autocomplete = interaction.options.getString("query", true)
+        .replaceAll("📚 ", "")
+        .replaceAll("🔧 ", "")
+        .replaceAll("⭕ ", "")
+        .replaceAll("🗝️ ", "")
+        .trim()
+
     await interaction.deferReply()
 
     // @ts-ignore
@@ -22,7 +27,7 @@ export async function basicReply(interaction: ChatInputCommandInteraction, clien
 
     if(!data) return interaction.followUp("Cannot find `" + autocomplete + "` in our docs")
     
-    let string = `\\${getEmoji(data.type)} **__[${data.name}](<${data.url}>)__**`
+    let string = `${getEmoji(data.type)} **__[${data.name}](<${data.url}>)__**`
 
     if(data.description) string += `\n${data.description}`
 
